@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Иврит">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+<title>Карточки иврита</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23534AB7'/%3E%3Ctext x='90' y='130' font-size='110' text-anchor='middle' fill='white' font-family='serif' font-weight='500'%3E%D7%90%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f7f5f0;
+    --bg-tertiary: #edeae1;
+    --text: #1a1a1a;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #8a8880;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --accent: #534AB7;
+    --accent-bg: #EEEDFE;
+    --success-bg: #EAF3DE;
+    --success-text: #3B6D11;
+    --success-border: #97C459;
+    --warning-bg: #FAEEDA;
+    --warning-text: #854F0B;
+    --warning-border: #EF9F27;
+    --danger-bg: #FCEBEB;
+    --danger-text: #A32D2D;
+    --danger-border: #E24B4A;
+    --highlight-bg: #FAEEDA;
+    --highlight-text: #633806;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg-secondary: #26251f;
+      --bg-tertiary: #35342d;
+      --text: #ececec;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --border: rgba(255,255,255,0.14);
+      --border-strong: rgba(255,255,255,0.28);
+      --accent: #AFA9EC;
+      --accent-bg: #2d2a4a;
+      --success-bg: #1f3808;
+      --success-text: #C0DD97;
+      --success-border: #639922;
+      --warning-bg: #3f2705;
+      --warning-text: #FAC775;
+      --warning-border: #BA7517;
+      --danger-bg: #3d1010;
+      --danger-text: #F7C1C1;
+      --danger-border: #E24B4A;
+      --highlight-bg: #3f2705;
+      --highlight-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  #app {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px 16px 32px;
+  }
+
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 16px; }
+  h2 { font-size: 18px; font-weight: 500; margin: 0 0 12px; }
+
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 14px;
+    border: 0.5px solid var(--border-strong);
+    background: transparent;
+    color: var(--text);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.12s, transform 0.06s;
+    white-space: normal;
+    line-height: 1.3;
+  }
+  button:active { transform: scale(0.97); }
+  button.primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  button.danger {
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+  }
+  button.ghost {
+    border-color: transparent;
+    color: var(--text-secondary);
+  }
+  button.icon {
+    padding: 6px 10px;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  input[type="text"], textarea {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    border-radius: var(--radius-md);
+    width: 100%;
+  }
+  textarea {
+    min-height: 160px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+
+  /* Deck list */
+  .deck-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  @media (hover: hover) {
+    .deck-card:hover { background: var(--bg-secondary); }
+    button:hover { background: var(--bg-secondary); }
+    button.primary:hover { filter: brightness(0.95); background: var(--accent); }
+    button.ghost:hover { background: var(--bg-secondary); }
+    .grade-again:hover, .grade-hard:hover, .grade-easy:hover { filter: brightness(0.96); }
+  }
+  .deck-main { flex: 1; min-width: 0; }
+  .deck-name {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .deck-stats {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-bar > div {
+    height: 100%;
+    background: #1D9E75;
+    transition: width 0.3s;
+  }
+  .deck-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+  /* Image box */
+  .image-box {
+    width: 100%;
+    height: 200px;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .image-box > div { width: 70%; max-width: 260px; }
+  .image-box svg { width: 100%; height: auto; display: block; }
+
+  /* Flip card */
+  .flip-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 20px 18px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    user-select: none;
+  }
+  .flip-card.clickable { cursor: pointer; }
+  .flip-card .front-ru {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .flip-card .front-he, .flip-card .back-he {
+    font-size: 22px;
+    line-height: 1.7;
+    font-family: ui-serif, "Times New Roman", serif;
+    direction: rtl;
+  }
+  .flip-card .back-ru {
+    font-size: 17px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .flip-card .back-he { margin-bottom: 10px; }
+  .flip-card .translit {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .flip-card .dict-word {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-family: ui-serif, "Times New Roman", serif;
+    direction: rtl;
+  }
+  .tap-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+  }
+  .highlight {
+    background: var(--highlight-bg);
+    color: var(--highlight-text);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .highlight-he { padding: 1px 8px; }
+
+  /* Grade buttons grid */
+  .grade-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .grade-grid button {
+    padding: 11px 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .grade-again { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+  .grade-hard  { background: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+  .grade-easy  { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+
+  /* Controls row */
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .controls button { flex: 1; min-width: 0; }
+
+  /* Header row for study view */
+  .study-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .study-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .study-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  /* List view header */
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  .list-header h1 { margin: 0; flex: 1; min-width: 0; }
+
+  .deck-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .menu-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .menu-row button { flex: 1; min-width: 130px; font-size: 13px; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+  }
+  .modal {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 0.5px solid var(--border);
+  }
+  .modal h2 { margin-top: 0; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .modal .error {
+    color: var(--danger-text);
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+  .modal .hint {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin: 0 0 12px;
+  }
+  .modal label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+
+  /* Toast / status */
+  #status {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    min-height: 16px;
+  }
+
+  .confirm-inline {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--danger-bg);
+    border: 0.5px solid var(--danger-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+  .confirm-inline .msg {
+    font-size: 13px;
+    color: var(--danger-text);
+    margin-bottom: 8px;
+  }
+  .confirm-inline .btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    border: 0.5px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+  }
+  .empty-state .title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .empty-state .sub {
+    font-size: 13px;
+  }
+
+  .kbd-hint {
+    display: none;
+  }
+  @media (min-width: 700px) {
+    .kbd-hint { display: inline; color: var(--text-tertiary); font-size: 12px; margin-left: 6px; }
+  }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+
+<script>
+// ============================================================
+// НАЧАЛЬНЫЕ ДАННЫЕ (встроены, загружаются только если localStorage пуст)
+// ============================================================
+const INITIAL_DECKS = [
+  {
+    id: "deck-1-mixed",
+    name: "Урок 1 — разное",
+    cards: [
+      {
+        id: "c-kivun",
+        word: "כִּיוּוּן (направление)",
+        ru: "Извините, вы знаете направление на центральную автостанцию?",
+        ruHL: "направление",
+        he: ['סְלִיחָה, אַתָּה יוֹדֵעַ אֶת הַ', {w:'כִּיוּוּן'}, ' לַתַּחֲנָה הַמֶּרְכָּזִית?'],
+        translit: "slikhá, atá yodéa et ha-kivún la-takhaná ha-merkazít?",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><circle cx="55" cy="85" r="18" fill="#CECBF6" stroke="#534AB7" stroke-width="1.5"/><circle cx="55" cy="76" r="7" fill="#534AB7"/><path d="M 48 85 Q 55 100 62 85" fill="#534AB7"/><path d="M 75 80 L 110 75" stroke="#5F5E5A" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/><path d="M 140 50 L 170 65 L 140 80 L 145 65 Z" fill="#EF9F27" stroke="#854F0B" stroke-width="1.5"/><rect x="115" y="90" width="60" height="25" rx="3" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.2"/><text x="145" y="107" text-anchor="middle" font-size="11" fill="#0C447C" font-weight="500">CENTER</text></svg>`
+      },
+      {
+        id: "c-laatsor",
+        word: "לַעֲצוֹר (остановить / арестовать)",
+        ru: "Полицейский остановил машину на перекрёстке.",
+        ruHL: "остановил",
+        he: ['הַשּׁוֹטֵר ', {w:'עָצַר'}, ' אֶת הָאוֹטוֹ בַּצּוֹמֶת.'],
+        translit: "ha-shotér atsár et ha-óto ba-tsómet",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="60" width="200" height="6" fill="#D3D1C7"/><rect x="97" y="0" width="6" height="140" fill="#D3D1C7"/><rect x="115" y="72" width="45" height="22" rx="4" fill="#378ADD" stroke="#0C447C" stroke-width="1.2"/><rect x="125" y="64" width="25" height="10" rx="2" fill="#B5D4F4"/><circle cx="125" cy="96" r="4" fill="#2C2C2A"/><circle cx="150" cy="96" r="4" fill="#2C2C2A"/><circle cx="70" cy="80" r="18" fill="#F7C1C1" stroke="#A32D2D" stroke-width="1.5"/><path d="M 60 80 L 80 80 M 70 70 L 70 90" stroke="#A32D2D" stroke-width="3" stroke-linecap="round"/><text x="70" y="115" text-anchor="middle" font-size="10" fill="#501313" font-weight="500">STOP</text></svg>`
+      },
+      {
+        id: "c-zikaron",
+        word: "זִיכָּרוֹן (память)",
+        ru: "У бабушки отличная память — она помнит все даты.",
+        ruHL: "память",
+        he: ['לְסָבְתָא יֵשׁ ', {w:'זִיכָּרוֹן'}, ' מְצוּיָּן — הִיא זוֹכֶרֶת אֶת כָּל הַתַּאֲרִיכִים.'],
+        translit: "le-sávta yesh zikarón metsuyán — hi zokhéret et kol ha-taarikhím",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><path d="M 100 28 C 68 28 52 52 52 74 C 52 96 70 112 100 112 C 130 112 148 96 148 74 C 148 52 132 28 100 28 Z" fill="#CECBF6" stroke="#534AB7" stroke-width="1.5"/><path d="M 72 60 Q 82 50 92 60 Q 102 70 92 80" fill="none" stroke="#3C3489" stroke-width="2" stroke-linecap="round"/><path d="M 108 60 Q 118 50 128 60 Q 138 70 128 80" fill="none" stroke="#3C3489" stroke-width="2" stroke-linecap="round"/><circle cx="78" cy="90" r="2" fill="#3C3489"/><circle cx="100" cy="96" r="2" fill="#3C3489"/><circle cx="122" cy="90" r="2" fill="#3C3489"/><path d="M 40 40 L 35 45 M 160 40 L 165 45 M 30 70 L 24 70 M 170 70 L 176 70" stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/></svg>`
+      },
+      {
+        id: "c-bilui",
+        word: "בִּילּוּי (отдых / развлечение)",
+        ru: "В выходные мы любим отдых на море.",
+        ruHL: "отдых",
+        he: ['בְּסוֹף הַשָּׁבוּעַ אֲנַחְנוּ אוֹהֲבִים ', {w:'בִּילּוּי'}, ' בַּיָּם.'],
+        translit: "be-sof ha-shavúa anákhnu ohavím bilúy ba-yam",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="95" width="200" height="45" fill="#FAC775"/><path d="M 0 95 Q 50 88 100 95 T 200 95 L 200 75 Q 150 68 100 75 T 0 75 Z" fill="#85B7EB"/><rect x="135" y="55" width="4" height="45" fill="#5F5E5A"/><path d="M 137 55 Q 110 50 105 70 Q 130 62 137 70 Q 160 62 168 70 Q 165 50 137 55 Z" fill="#F09595" stroke="#A32D2D" stroke-width="1.2"/><circle cx="50" cy="115" r="7" fill="#D4537E"/><circle cx="175" cy="30" r="14" fill="#EF9F27"/><path d="M 175 10 L 175 5 M 175 55 L 175 50 M 155 30 L 150 30 M 195 30 L 200 30" stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/></svg>`
+      },
+      {
+        id: "c-mukhrakh",
+        word: "מוּכְרָח (вынужден)",
+        ru: "К сожалению, я вынужден уйти пораньше.",
+        ruHL: "вынужден",
+        he: ['לְצַעֲרִי, אֲנִי ', {w:'מוּכְרָח'}, ' לָלֶכֶת מֻקְדָּם.'],
+        translit: "le-tsaarí, aní mukhrákh lalékhet mukdám",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><circle cx="80" cy="65" r="10" fill="#F5C4B3" stroke="#993C1D" stroke-width="1.2"/><path d="M 80 75 L 80 100 M 70 85 L 90 85 M 75 100 L 70 115 M 85 100 L 90 115" stroke="#993C1D" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M 95 90 L 125 85" stroke="#5F5E5A" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/><rect x="130" y="65" width="50" height="45" rx="3" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1.2"/><path d="M 130 80 L 180 80" stroke="#5F5E5A" stroke-width="1"/><rect x="140" y="85" width="10" height="10" fill="#888780"/><rect x="160" y="85" width="10" height="10" fill="#888780"/><circle cx="135" cy="40" r="12" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1.5"/><path d="M 135 34 L 135 42 M 135 45 L 135 47" stroke="#A32D2D" stroke-width="2" stroke-linecap="round"/></svg>`
+      }
+    ]
+  },
+  {
+    id: "deck-2-army",
+    name: "Урок 2 — армия и общество",
+    cards: [
+      {
+        id: "c-ofi",
+        word: "אוֹפִי (характер)",
+        ru: "У него очень спокойный характер.",
+        ruHL: "характер",
+        he: ['יֵשׁ לוֹ ', {w:'אוֹפִי'}, ' שָׁקֵט מְאוֹד.'],
+        translit: "yesh lo ófi shakét meód",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="65" r="28" fill="#F5C4B3" stroke="#993C1D" stroke-width="1.5"/><circle cx="90" cy="60" r="3" fill="#4A1B0C"/><circle cx="110" cy="60" r="3" fill="#4A1B0C"/><path d="M 88 75 Q 100 82 112 75" stroke="#4A1B0C" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M 72 45 Q 100 25 128 45" stroke="#712B13" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 60 95 L 60 130 L 140 130 L 140 95 Z" fill="#85B7EB" stroke="#0C447C" stroke-width="1.2"/><path d="M 150 35 Q 165 30 170 45 Q 160 48 150 45 Z" fill="#9FE1CB" stroke="#085041" stroke-width="1"/><circle cx="160" cy="42" r="1.5" fill="#085041"/></svg>`
+      },
+      {
+        id: "c-khova",
+        word: "חוֹבָה (обязанность)",
+        ru: "Служба в армии — это обязанность каждого гражданина.",
+        ruHL: "обязанность",
+        he: ['שֵׁירוּת בַּצָּבָא הוּא ', {w:'חוֹבָה'}, ' שֶׁל כָּל אֶזְרָח.'],
+        translit: "sherút ba-tsavá hu khová shel kol ezrákh",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="55" y="35" width="90" height="80" rx="4" fill="#E6F1FB" stroke="#0C447C" stroke-width="1.5"/><path d="M 55 50 L 145 50" stroke="#0C447C" stroke-width="1"/><path d="M 70 70 L 130 70 M 70 82 L 130 82 M 70 94 L 110 94" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round"/><circle cx="155" cy="40" r="18" fill="#A32D2D" stroke="#501313" stroke-width="1.5"/><path d="M 148 40 L 153 45 L 162 34" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      },
+      {
+        id: "c-siba",
+        word: "סִיבָּה (причина)",
+        ru: "Какая причина твоего опоздания?",
+        ruHL: "причина",
+        he: ['מָה הַ', {w:'סִיבָּה'}, ' לָאִיחוּר שֶׁלְּךָ?'],
+        translit: "ma ha-sibá la-ikhúr shelkhá?",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="70" r="40" fill="#FAC775" stroke="#854F0B" stroke-width="1.5"/><path d="M 88 58 Q 88 48 100 48 Q 112 48 112 60 Q 112 68 100 72 L 100 80" stroke="#633806" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="100" cy="92" r="3" fill="#633806"/><path d="M 50 40 L 40 30 M 150 40 L 160 30 M 40 100 L 30 110 M 160 100 L 170 110" stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/></svg>`
+      },
+      {
+        id: "c-sadir",
+        word: "סָדִיר (регулярный)",
+        ru: "Он проходит регулярную военную службу.",
+        ruHL: "регулярную",
+        he: ['הוּא עוֹשֶׂה שֵׁירוּת צְבָאִי ', {w:'סָדִיר'}, '.'],
+        translit: "hu osé sherút tsvaí sadír",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="40" width="140" height="70" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.2"/><path d="M 30 55 L 170 55 M 30 70 L 170 70 M 30 85 L 170 85 M 30 100 L 170 100" stroke="#B4B2A9" stroke-width="0.8"/><path d="M 50 40 L 50 110 M 80 40 L 80 110 M 110 40 L 110 110 M 140 40 L 140 110" stroke="#B4B2A9" stroke-width="0.8"/><circle cx="65" cy="62" r="4" fill="#0F6E56"/><circle cx="95" cy="77" r="4" fill="#0F6E56"/><circle cx="125" cy="92" r="4" fill="#0F6E56"/><circle cx="155" cy="62" r="4" fill="#0F6E56"/><path d="M 65 62 L 95 77 L 125 92 L 155 62" stroke="#1D9E75" stroke-width="1.5" fill="none"/></svg>`
+      },
+      {
+        id: "c-tsvai",
+        word: "צְבָאִי (военный)",
+        ru: "Он носит военную форму.",
+        ruHL: "военную",
+        he: ['הוּא לוֹבֵשׁ מַדִּים ', {w:'צְבָאִיִּים'}, '.'],
+        translit: "hu lovésh madím tsvaiím",
+        svg: `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="45" r="18" fill="#F5C4B3" stroke="#712B13" stroke-width="1.2"/><path d="M 75 32 L 75 42 L 125 42 L 125 32 Q 100 22 75 32 Z" fill="#3B6D11" stroke="#173404" stroke-width="1.2"/><path d="M 96 28 L 100 24 L 104 28 L 100 32 Z" fill="#FAC775"/><path d="M 65 70 L 65 125 L 135 125 L 135 70 Q 125 62 115 65 L 100 68 L 85 65 Q 75 62 65 70 Z" fill="#639922" stroke="#173404" stroke-width="1.2"/><path d="M 78 78 Q 82 82 86 78 M 90 88 Q 94 92 98 88 M 108 78 Q 112 82 116 78 M 100 100 Q 104 104 108 100" fill="none" stroke="#27500A" stroke-width="1.5" stroke-linecap="round"/><rect x="92" y="73" width="16" height="4" fill="#633806"/></svg>`
+      }
+    ]
+  }
+];
+
+// ============================================================
+// ХРАНИЛИЩЕ
+// ============================================================
+const STORAGE_KEY = 'hebrew-flashcards-v1';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultData();
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.decks)) return defaultData();
+    return normalize(parsed);
+  } catch (e) {
+    console.error('Load failed:', e);
+    return defaultData();
+  }
+}
+
+function defaultData() {
+  return {
+    version: 1,
+    type: "hebrew-decks-export",
+    decks: JSON.parse(JSON.stringify(INITIAL_DECKS)),
+    progress: {}
+  };
+}
+
+function normalize(data) {
+  if (!data.progress) data.progress = {};
+  data.decks.forEach(d => {
+    if (!d.id) d.id = genId('deck');
+    if (!Array.isArray(d.cards)) d.cards = [];
+    d.cards.forEach(c => { if (!c.id) c.id = genId('card'); });
+  });
+  return data;
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  } catch (e) {
+    console.error('Save failed:', e);
+    showStatus('Не удалось сохранить — память переполнена?', true);
+  }
+}
+
+function genId(prefix) {
+  return prefix + '-' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+}
+
+// ============================================================
+// СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+// ============================================================
+let DATA = loadData();
+let view = 'list';           // 'list' | 'study'
+let activeDeckId = null;
+let studyState = { order: [], idx: 0, showingBack: false };
+let modal = null;            // { type, props } или null
+
+function getDeck(id) { return DATA.decks.find(d => d.id === id); }
+function getDeckProgress(id) {
+  if (!DATA.progress[id]) DATA.progress[id] = { known: {}, direction: 'ru-he' };
+  return DATA.progress[id];
+}
+
+// ============================================================
+// ПОРЯДОК КАРТОЧЕК ДЛЯ ИЗУЧЕНИЯ
+// ============================================================
+function buildOrder(deck, p) {
+  const arr = deck.cards.map(c => c.id);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  arr.sort((a, b) => (p.known[a] || 0) - (p.known[b] || 0));
+  return arr;
+}
+
+// ============================================================
+// ПОДСВЕТКА
+// ============================================================
+function highlightRu(text, hl) {
+  if (!hl) return escapeHtml(text);
+  const lower = text.toLowerCase();
+  const i = lower.indexOf(hl.toLowerCase());
+  if (i < 0) return escapeHtml(text);
+  return escapeHtml(text.slice(0, i)) +
+    `<span class="highlight">${escapeHtml(text.slice(i, i + hl.length))}</span>` +
+    escapeHtml(text.slice(i + hl.length));
+}
+
+function renderHeParts(parts) {
+  if (!Array.isArray(parts)) return escapeHtml(String(parts || ''));
+  return parts.map(p => {
+    if (typeof p === 'string') return escapeHtml(p);
+    if (p && typeof p === 'object' && p.w) {
+      return `<span class="highlight highlight-he">${escapeHtml(p.w)}</span>`;
+    }
+    return '';
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+// SVG считается доверенным: либо из встроенных данных, либо из JSON,
+// который пользователь сам импортирует. Но базовая защита: запретим <script>.
+function sanitizeSvg(svg) {
+  if (typeof svg !== 'string') return '';
+  return svg.replace(/<script[\s\S]*?<\/script>/gi, '')
+            .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+            .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
+}
+
+// ============================================================
+// РЕНДЕР
+// ============================================================
+function render() {
+  const app = document.getElementById('app');
+  if (view === 'list') app.innerHTML = renderList();
+  else if (view === 'study') app.innerHTML = renderStudy();
+  renderModal();
+  attach();
+}
+
+function renderList() {
+  const decks = DATA.decks;
+  const deckHTML = decks.length === 0
+    ? `<div class="empty-state">
+        <div class="title">Колод пока нет</div>
+        <div class="sub">Нажми «+ Колода», чтобы импортировать первую.</div>
+      </div>`
+    : `<div class="deck-list">${decks.map(renderDeckCard).join('')}</div>`;
+
+  return `
+    <div class="list-header">
+      <h1>Колоды</h1>
+      <button class="icon" data-action="add-deck" title="Добавить колоду">+ Колода</button>
+    </div>
+
+    ${deckHTML}
+
+    <div class="menu-row">
+      <button data-action="export-full">Экспорт + прогресс</button>
+      <button data-action="export-template">Экспорт без прогресса</button>
+      <button data-action="import">Импорт JSON…</button>
+      <button data-action="copy-prompt">Промпт для Claude</button>
+    </div>
+    <div id="status"></div>
+  `;
+}
+
+function renderDeckCard(d) {
+  const p = getDeckProgress(d.id);
+  let learned = 0, toReview = 0;
+  d.cards.forEach(c => {
+    const s = p.known[c.id] || 0;
+    if (s >= 2) learned++;
+    else if (s < 0) toReview++;
+  });
+  const total = d.cards.length;
+  const pct = total === 0 ? 0 : Math.round((learned / total) * 100);
+  const stats = total === 0
+    ? 'пусто'
+    : `${total} карт · изучено ${learned}${toReview > 0 ? ` · повторить ${toReview}` : ''}`;
+
+  return `
+    <div class="deck-card" data-action="open-deck" data-deck="${escapeHtml(d.id)}">
+      <div class="deck-main">
+        <div class="deck-name">${escapeHtml(d.name)}</div>
+        <div class="deck-stats">${stats}</div>
+        <div class="progress-bar"><div style="width: ${pct}%"></div></div>
+      </div>
+      <div class="deck-actions">
+        <button class="icon ghost" data-action="add-card" data-deck="${escapeHtml(d.id)}" title="Добавить карточку">+</button>
+        <button class="icon ghost" data-action="delete-deck" data-deck="${escapeHtml(d.id)}" title="Удалить колоду">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStudy() {
+  const deck = getDeck(activeDeckId);
+  if (!deck) { view = 'list'; return renderList(); }
+  const p = getDeckProgress(deck.id);
+
+  if (deck.cards.length === 0) {
+    return `
+      <div class="study-header">
+        <button data-action="back-to-list">← Колоды</button>
+        <div class="study-title">${escapeHtml(deck.name)}</div>
+        <div style="width: 70px"></div>
+      </div>
+      <div class="empty-state">
+        <div class="title">В колоде нет карточек</div>
+        <div class="sub">Добавь карточки через «+ карточку» в списке колод.</div>
+      </div>
+    `;
+  }
+
+  // Гарантируем валидный order
+  if (!studyState.order.length || studyState.idx >= studyState.order.length ||
+      !studyState.order.every(id => deck.cards.some(c => c.id === id))) {
+    studyState.order = buildOrder(deck, p);
+    studyState.idx = 0;
+    studyState.showingBack = false;
+  }
+
+  const cardId = studyState.order[studyState.idx];
+  const c = deck.cards.find(x => x.id === cardId);
+  if (!c) {
+    studyState.order = buildOrder(deck, p);
+    studyState.idx = 0;
+    return renderStudy();
+  }
+
+  let learned = 0, toReview = 0;
+  deck.cards.forEach(cc => {
+    const s = p.known[cc.id] || 0;
+    if (s >= 2) learned++;
+    else if (s < 0) toReview++;
+  });
+
+  const frontHTML = p.direction === 'ru-he'
+    ? `<div class="front-ru">${highlightRu(c.ru, c.ruHL)}</div>`
+    : `<div class="front-he">${renderHeParts(c.he)}</div>`;
+
+  const backHTML = p.direction === 'ru-he'
+    ? `<div class="back-he">${renderHeParts(c.he)}</div>
+       <div class="translit">${escapeHtml(c.translit || '')}</div>
+       <div class="dict-word">${escapeHtml(c.word || '')}</div>`
+    : `<div class="back-ru">${highlightRu(c.ru, c.ruHL)}</div>
+       <div class="translit">${escapeHtml(c.translit || '')}</div>
+       <div class="dict-word">${escapeHtml(c.word || '')}</div>`;
+
+  return `
+    <div class="study-header">
+      <button data-action="back-to-list">← Колоды</button>
+      <div class="study-title">${escapeHtml(deck.name)}</div>
+      <button class="icon ghost danger" data-action="delete-card" data-card="${escapeHtml(c.id)}" title="Удалить карточку">✕</button>
+    </div>
+
+    <div class="study-meta">
+      <span>Карточка ${studyState.idx + 1} / ${deck.cards.length}</span>
+      <span>Изучено: ${learned} · Повторить: ${toReview}</span>
+    </div>
+
+    <div class="image-box">
+      <div>${sanitizeSvg(c.svg || '')}</div>
+    </div>
+
+    <div class="flip-card ${studyState.showingBack ? '' : 'clickable'}" ${studyState.showingBack ? '' : 'data-action="flip"'}>
+      ${studyState.showingBack ? backHTML : frontHTML}
+      ${studyState.showingBack ? '' : '<div class="tap-hint">Нажми, чтобы увидеть перевод</div>'}
+    </div>
+
+    ${studyState.showingBack ? `
+      <div class="grade-grid">
+        <button class="grade-again" data-action="grade" data-grade="again">Не знал</button>
+        <button class="grade-hard"  data-action="grade" data-grade="hard">Трудно</button>
+        <button class="grade-easy"  data-action="grade" data-grade="easy">Легко</button>
+      </div>
+    ` : ''}
+
+    <div class="controls">
+      <button data-action="toggle-direction">${p.direction === 'ru-he' ? 'Показывать иврит' : 'Показывать русский'}</button>
+      <button data-action="shuffle">Перемешать</button>
+      <button class="danger" data-action="reset-deck">Сбросить</button>
+    </div>
+
+    <div id="status"></div>
+  `;
+}
+
+// ============================================================
+// ОБРАБОТЧИКИ
+// ============================================================
+function attach() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', onAction);
+  });
+}
+
+function onAction(e) {
+  const el = e.currentTarget;
+  const action = el.dataset.action;
+  const deckId = el.dataset.deck;
+  const cardId = el.dataset.card;
+
+  switch (action) {
+    case 'add-deck':        openModal('add-deck'); break;
+    case 'add-card':        e.stopPropagation(); openModal('add-cards', { deckId }); break;
+    case 'delete-deck':     e.stopPropagation(); openModal('delete-deck', { deckId }); break;
+    case 'open-deck':       openDeck(deckId); break;
+    case 'back-to-list':    view = 'list'; activeDeckId = null; render(); break;
+    case 'flip':            studyState.showingBack = true; render(); break;
+    case 'grade':           gradeCard(el.dataset.grade); break;
+    case 'toggle-direction':toggleDirection(); break;
+    case 'shuffle':         shuffleCurrent(); break;
+    case 'reset-deck':      openModal('reset-deck', { deckId: activeDeckId }); break;
+    case 'delete-card':     openModal('delete-card', { deckId: activeDeckId, cardId }); break;
+    case 'export-full':     exportJSON(true); break;
+    case 'export-template': exportJSON(false); break;
+    case 'import':          openModal('import'); break;
+    case 'copy-prompt':     copyPrompt(); break;
+    case 'modal-close':     closeModal(); break;
+  }
+}
+
+// ============================================================
+// ДЕЙСТВИЯ
+// ============================================================
+function openDeck(id) {
+  const deck = getDeck(id);
+  if (!deck) return;
+  activeDeckId = id;
+  const p = getDeckProgress(id);
+  studyState = { order: buildOrder(deck, p), idx: 0, showingBack: false };
+  view = 'study';
+  render();
+}
+
+function gradeCard(level) {
+  const deck = getDeck(activeDeckId);
+  const p = getDeckProgress(activeDeckId);
+  const cardId = studyState.order[studyState.idx];
+  const cur = p.known[cardId] || 0;
+  if (level === 'again') p.known[cardId] = -1;
+  else if (level === 'hard') p.known[cardId] = Math.max(cur, 1);
+  else if (level === 'easy') p.known[cardId] = Math.max(cur + 1, 2);
+  saveData();
+
+  studyState.idx++;
+  if (studyState.idx >= studyState.order.length) {
+    studyState.order = buildOrder(deck, p);
+    studyState.idx = 0;
+    showStatus('Колода пройдена — приоритет сложным словам.');
+  }
+  studyState.showingBack = false;
+  render();
+}
+
+function toggleDirection() {
+  const p = getDeckProgress(activeDeckId);
+  p.direction = p.direction === 'ru-he' ? 'he-ru' : 'ru-he';
+  studyState.showingBack = false;
+  saveData();
+  render();
+}
+
+function shuffleCurrent() {
+  const deck = getDeck(activeDeckId);
+  const p = getDeckProgress(activeDeckId);
+  studyState.order = buildOrder(deck, p);
+  studyState.idx = 0;
+  studyState.showingBack = false;
+  render();
+  showStatus('Колода перемешана');
+}
+
+function resetDeckProgress(id) {
+  const p = getDeckProgress(id);
+  p.known = {};
+  saveData();
+  if (view === 'study' && activeDeckId === id) {
+    const deck = getDeck(id);
+    studyState.order = buildOrder(deck, p);
+    studyState.idx = 0;
+    studyState.showingBack = false;
+  }
+  render();
+  showStatus('Прогресс сброшен');
+}
+
+function deleteDeck(id) {
+  DATA.decks = DATA.decks.filter(d => d.id !== id);
+  delete DATA.progress[id];
+  saveData();
+  if (activeDeckId === id) { view = 'list'; activeDeckId = null; }
+  render();
+  showStatus('Колода удалена');
+}
+
+function deleteCard(deckId, cardId) {
+  const deck = getDeck(deckId);
+  if (!deck) return;
+  deck.cards = deck.cards.filter(c => c.id !== cardId);
+  const p = getDeckProgress(deckId);
+  delete p.known[cardId];
+  saveData();
+  if (view === 'study' && activeDeckId === deckId) {
+    studyState.order = studyState.order.filter(id => id !== cardId);
+    if (studyState.idx >= studyState.order.length) studyState.idx = 0;
+    studyState.showingBack = false;
+  }
+  render();
+  showStatus('Карточка удалена');
+}
+
+// ============================================================
+// МОДАЛКИ
+// ============================================================
+function openModal(type, props = {}) {
+  modal = { type, props, error: '' };
+  render();
+}
+function closeModal() {
+  modal = null;
+  render();
+}
+
+function renderModal() {
+  const existing = document.querySelector('.modal-backdrop');
+  if (existing) existing.remove();
+  if (!modal) return;
+
+  let html = '';
+  switch (modal.type) {
+    case 'delete-deck': {
+      const deck = getDeck(modal.props.deckId);
+      html = `
+        <h2>Удалить колоду?</h2>
+        <p class="hint">«${escapeHtml(deck?.name || '')}» будет удалена вместе с прогрессом. Отменить нельзя.</p>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="danger" id="modal-confirm-del-deck">Удалить</button>
+        </div>
+      `;
+      break;
+    }
+    case 'delete-card': {
+      const deck = getDeck(modal.props.deckId);
+      const card = deck?.cards.find(c => c.id === modal.props.cardId);
+      html = `
+        <h2>Удалить карточку?</h2>
+        <p class="hint">Карточка «${escapeHtml(card?.word || '')}» будет удалена из колоды.</p>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="danger" id="modal-confirm-del-card">Удалить</button>
+        </div>
+      `;
+      break;
+    }
+    case 'reset-deck': {
+      const deck = getDeck(modal.props.deckId);
+      html = `
+        <h2>Сбросить прогресс?</h2>
+        <p class="hint">Прогресс колоды «${escapeHtml(deck?.name || '')}» будет обнулён. Сами карточки останутся.</p>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="danger" id="modal-confirm-reset">Сбросить</button>
+        </div>
+      `;
+      break;
+    }
+    case 'add-deck': {
+      html = `
+        <h2>Добавить колоду</h2>
+        <p class="hint">Вставь JSON колоды (или полного экспорта с одной колодой).</p>
+        <textarea id="modal-textarea" placeholder='{"name": "...", "cards": [...]}'></textarea>
+        <div class="error" id="modal-error"></div>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="primary" id="modal-confirm-add-deck">Добавить</button>
+        </div>
+      `;
+      break;
+    }
+    case 'add-cards': {
+      const deck = getDeck(modal.props.deckId);
+      html = `
+        <h2>Добавить карточки</h2>
+        <p class="hint">В колоду «${escapeHtml(deck?.name || '')}». Вставь JSON-массив карточек или одну карточку.</p>
+        <textarea id="modal-textarea" placeholder='[{"word": "...", "ru": "...", "he": [...], ...}]'></textarea>
+        <div class="error" id="modal-error"></div>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="primary" id="modal-confirm-add-cards">Добавить</button>
+        </div>
+      `;
+      break;
+    }
+    case 'import': {
+      html = `
+        <h2>Импорт JSON</h2>
+        <p class="hint">Вставь JSON полного экспорта. Совпадающие колоды будут добавлены как новые копии.</p>
+        <textarea id="modal-textarea" placeholder='{"version": 1, "type": "hebrew-decks-export", "decks": [...]}'></textarea>
+        <label><input type="checkbox" id="modal-import-progress" checked> Импортировать прогресс, если он есть</label>
+        <div class="error" id="modal-error"></div>
+        <div class="modal-actions">
+          <button data-action="modal-close">Отмена</button>
+          <button class="primary" id="modal-confirm-import">Импорт</button>
+        </div>
+      `;
+      break;
+    }
+  }
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal">${html}</div>`;
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+  document.body.appendChild(backdrop);
+
+  // Локальные обработчики модалок
+  document.querySelectorAll('.modal [data-action]').forEach(el => {
+    el.addEventListener('click', onAction);
+  });
+
+  const hook = (id, fn) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', fn);
+  };
+
+  hook('modal-confirm-del-deck', () => { deleteDeck(modal.props.deckId); closeModal(); });
+  hook('modal-confirm-del-card', () => { deleteCard(modal.props.deckId, modal.props.cardId); closeModal(); });
+  hook('modal-confirm-reset',    () => { resetDeckProgress(modal.props.deckId); closeModal(); });
+  hook('modal-confirm-add-deck', handleAddDeck);
+  hook('modal-confirm-add-cards',handleAddCards);
+  hook('modal-confirm-import',   handleImport);
+}
+
+function showModalError(msg) {
+  const el = document.getElementById('modal-error');
+  if (el) el.textContent = msg;
+}
+
+// ============================================================
+// ВАЛИДАЦИЯ И ИМПОРТ
+// ============================================================
+function validateCard(c, idx) {
+  const prefix = `Карточка #${idx + 1}: `;
+  if (!c || typeof c !== 'object') throw new Error(prefix + 'не объект');
+  if (typeof c.ru !== 'string' || !c.ru.trim()) throw new Error(prefix + 'нет поля "ru"');
+  if (!Array.isArray(c.he)) throw new Error(prefix + '"he" должно быть массивом');
+  c.he.forEach((p, i) => {
+    if (typeof p !== 'string' && !(p && typeof p === 'object' && typeof p.w === 'string')) {
+      throw new Error(prefix + `he[${i}] — неверный формат (строка или {w:"..."})`);
+    }
+  });
+  if (!c.id) c.id = genId('card');
+  if (typeof c.word !== 'string') c.word = '';
+  if (typeof c.ruHL !== 'string') c.ruHL = '';
+  if (typeof c.translit !== 'string') c.translit = '';
+  if (typeof c.svg !== 'string') c.svg = '';
+  return c;
+}
+
+function validateDeck(d) {
+  if (!d || typeof d !== 'object') throw new Error('Колода не объект');
+  if (typeof d.name !== 'string' || !d.name.trim()) throw new Error('Нет имени колоды');
+  if (!Array.isArray(d.cards)) throw new Error('Нет массива "cards"');
+  d.cards.forEach(validateCard);
+  if (!d.id) d.id = genId('deck');
+  return d;
+}
+
+function handleAddDeck() {
+  const raw = document.getElementById('modal-textarea').value.trim();
+  if (!raw) return showModalError('Пусто');
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { return showModalError('Некорректный JSON: ' + e.message); }
+
+  try {
+    let deckObj;
+    if (parsed.decks && Array.isArray(parsed.decks) && parsed.decks.length > 0) {
+      // Полный экспорт — берём первую колоду
+      deckObj = parsed.decks[0];
+    } else {
+      deckObj = parsed;
+    }
+    validateDeck(deckObj);
+    // ID обязательно новый, чтобы не конфликтовать
+    deckObj.id = genId('deck');
+    deckObj.cards.forEach(c => { c.id = genId('card'); });
+    DATA.decks.push(deckObj);
+    saveData();
+    closeModal();
+    showStatus(`Колода «${deckObj.name}» добавлена`);
+  } catch (e) {
+    showModalError(e.message);
+  }
+}
+
+function handleAddCards() {
+  const raw = document.getElementById('modal-textarea').value.trim();
+  if (!raw) return showModalError('Пусто');
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { return showModalError('Некорректный JSON: ' + e.message); }
+
+  const cards = Array.isArray(parsed) ? parsed : [parsed];
+  try {
+    cards.forEach((c, i) => validateCard(c, i));
+  } catch (e) {
+    return showModalError(e.message);
+  }
+
+  const deck = getDeck(modal.props.deckId);
+  cards.forEach(c => { c.id = genId('card'); deck.cards.push(c); });
+  saveData();
+  closeModal();
+  showStatus(`Добавлено карточек: ${cards.length}`);
+}
+
+function handleImport() {
+  const raw = document.getElementById('modal-textarea').value.trim();
+  const importProgress = document.getElementById('modal-import-progress').checked;
+  if (!raw) return showModalError('Пусто');
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { return showModalError('Некорректный JSON: ' + e.message); }
+
+  if (!Array.isArray(parsed.decks)) return showModalError('Нет массива "decks"');
+
+  try {
+    parsed.decks.forEach(validateDeck);
+  } catch (e) {
+    return showModalError(e.message);
+  }
+
+  let count = 0;
+  parsed.decks.forEach(d => {
+    const oldId = d.id;
+    const newId = genId('deck');   // всегда как новая (по выбору пользователя)
+    const idMap = {};
+    d.cards.forEach(c => {
+      const newCardId = genId('card');
+      idMap[c.id] = newCardId;
+      c.id = newCardId;
+    });
+    d.id = newId;
+    DATA.decks.push(d);
+
+    if (importProgress && parsed.progress && parsed.progress[oldId]) {
+      const oldProg = parsed.progress[oldId];
+      DATA.progress[newId] = {
+        direction: oldProg.direction || 'ru-he',
+        known: {}
+      };
+      Object.keys(oldProg.known || {}).forEach(oldCardId => {
+        if (idMap[oldCardId]) {
+          DATA.progress[newId].known[idMap[oldCardId]] = oldProg.known[oldCardId];
+        }
+      });
+    }
+    count++;
+  });
+  saveData();
+  closeModal();
+  showStatus(`Импортировано колод: ${count}`);
+}
+
+// ============================================================
+// ЭКСПОРТ
+// ============================================================
+function exportJSON(withProgress) {
+  const payload = {
+    version: 1,
+    type: 'hebrew-decks-export',
+    exportedAt: new Date().toISOString(),
+    decks: JSON.parse(JSON.stringify(DATA.decks))
+  };
+  if (withProgress) payload.progress = JSON.parse(JSON.stringify(DATA.progress));
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = withProgress
+    ? `hebrew-decks-full-${stamp}.json`
+    : `hebrew-decks-template-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showStatus(withProgress ? 'Экспортировано с прогрессом' : 'Экспортирован шаблон');
+}
+
+// ============================================================
+// ПРОМПТ ДЛЯ CLAUDE
+// ============================================================
+const CLAUDE_PROMPT = `Я учу иврит (родной — русский). Сгенерируй JSON одной колоды для моего приложения карточек. Формат — строго как ниже.
+
+ФОРМАТ:
+{
+  "name": "<название колоды, короткое>",
+  "cards": [
+    {
+      "word": "<словарная форма на иврите с огласовками> (<русский перевод>)",
+      "ru": "<короткое предложение 5–10 слов по-русски, в котором используется слово>",
+      "ruHL": "<точная форма слова, как она стоит в ru — для подсветки>",
+      "he": [
+        "<часть предложения на иврите ДО ключевого слова, с огласовками>",
+        { "w": "<ключевое слово в той форме, в какой оно в предложении, с огласовками>" },
+        "<часть ПОСЛЕ ключевого слова>"
+      ],
+      "translit": "<транслитерация предложения латиницей с ударениями (как yesh lo ófi shakét meód)>",
+      "svg": "<SVG-иллюстрация viewBox=\\"0 0 200 140\\", плоский стиль, 2–3 цвета из палитры, без shadow/gradient/blur, только solid fills, размер файла маленький>"
+    }
+  ]
+}
+
+ПРАВИЛА:
+- Всегда добавляй огласовки (никуд) к иврит-тексту и словарной форме.
+- Если слово в предложении стоит в изменённой форме (глагол в прошедшем, существительное во мн.ч. и т.п.) — ключ "w" содержит именно эту форму, а "word" — словарную.
+- Предложения простые, бытовые, уровень А2–B1.
+- SVG: 200x140, плоские фигуры, цвета из палитры #CECBF6/#534AB7/#FAC775/#EF9F27/#F5C4B3/#993C1D/#85B7EB/#0C447C/#9FE1CB/#0F6E56/#D3D1C7/#5F5E5A. Без теней, без градиентов, без <script>, без обработчиков событий.
+- Не добавляй поле "id" — приложение сгенерирует само.
+- Верни только JSON, без пояснений, без \`\`\`-обёрток.
+
+СЛОВА (каждое с одного на строку, формат "русский перевод — иврит с огласовками"):
+
+<сюда вставлю список слов>
+`;
+
+async function copyPrompt() {
+  try {
+    await navigator.clipboard.writeText(CLAUDE_PROMPT);
+    showStatus('Промпт скопирован — вставь его в новый чат и допиши список слов внизу');
+  } catch (e) {
+    // fallback: показать в модалке, чтобы можно было выделить вручную
+    modal = { type: 'show-prompt', props: {} };
+    render();
+    // подменим рендер модалки на лету
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+      backdrop.querySelector('.modal').innerHTML = `
+        <h2>Скопируй промпт</h2>
+        <p class="hint">Автоматически скопировать не получилось, выдели и скопируй вручную.</p>
+        <textarea readonly>${escapeHtml(CLAUDE_PROMPT)}</textarea>
+        <div class="modal-actions"><button data-action="modal-close">Закрыть</button></div>
+      `;
+      backdrop.querySelectorAll('[data-action]').forEach(b => b.addEventListener('click', onAction));
+    }
+  }
+}
+
+// ============================================================
+// СТАТУС-БАР
+// ============================================================
+let statusTimer = null;
+function showStatus(msg, isError) {
+  const el = document.getElementById('status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger-text)' : 'var(--text-tertiary)';
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { if (el) el.textContent = ''; }, 3000);
+}
+
+// ============================================================
+// СТАРТ
+// ============================================================
+render();
+
+</script>
+</body>
+</html>
