@@ -379,6 +379,21 @@
     margin-bottom: 6px;
     margin-top: 12px;
   }
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .file-row button { flex-shrink: 0; }
+  .file-name {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
 
   /* Toast / status */
   #status {
@@ -1006,7 +1021,12 @@ function renderModal() {
     case 'add-deck': {
       html = `
         <h2>Добавить колоду</h2>
-        <p class="hint">Вставь JSON колоды (или полного экспорта с одной колодой).</p>
+        <p class="hint">Вставь JSON или загрузи .json файл.</p>
+        <div class="file-row">
+          <button class="ghost" id="modal-file-btn">📁 Загрузить файл…</button>
+          <span id="modal-file-name" class="file-name"></span>
+        </div>
+        <input type="file" id="modal-file-input" accept=".json,application/json" style="display:none">
         <textarea id="modal-textarea" placeholder='{"name": "...", "cards": [...]}'></textarea>
         <div class="error" id="modal-error"></div>
         <div class="modal-actions">
@@ -1020,7 +1040,12 @@ function renderModal() {
       const deck = getDeck(modal.props.deckId);
       html = `
         <h2>Добавить карточки</h2>
-        <p class="hint">В колоду «${escapeHtml(deck?.name || '')}». Вставь JSON-массив карточек или одну карточку.</p>
+        <p class="hint">В колоду «${escapeHtml(deck?.name || '')}». Вставь JSON-массив карточек или загрузи файл.</p>
+        <div class="file-row">
+          <button class="ghost" id="modal-file-btn">📁 Загрузить файл…</button>
+          <span id="modal-file-name" class="file-name"></span>
+        </div>
+        <input type="file" id="modal-file-input" accept=".json,application/json" style="display:none">
         <textarea id="modal-textarea" placeholder='[{"word": "...", "ru": "...", "he": [...], ...}]'></textarea>
         <div class="error" id="modal-error"></div>
         <div class="modal-actions">
@@ -1033,7 +1058,12 @@ function renderModal() {
     case 'import': {
       html = `
         <h2>Импорт JSON</h2>
-        <p class="hint">Вставь JSON полного экспорта. Совпадающие колоды будут добавлены как новые копии.</p>
+        <p class="hint">Вставь JSON или загрузи .json файл. Совпадающие колоды будут добавлены как новые копии.</p>
+        <div class="file-row">
+          <button class="ghost" id="modal-file-btn">📁 Загрузить файл…</button>
+          <span id="modal-file-name" class="file-name"></span>
+        </div>
+        <input type="file" id="modal-file-input" accept=".json,application/json" style="display:none">
         <textarea id="modal-textarea" placeholder='{"version": 1, "type": "hebrew-decks-export", "decks": [...]}'></textarea>
         <label><input type="checkbox" id="modal-import-progress" checked> Импортировать прогресс, если он есть</label>
         <div class="error" id="modal-error"></div>
@@ -1068,6 +1098,31 @@ function renderModal() {
   hook('modal-confirm-add-deck', handleAddDeck);
   hook('modal-confirm-add-cards',handleAddCards);
   hook('modal-confirm-import',   handleImport);
+
+  // Загрузка файла → в textarea
+  const fileBtn = document.getElementById('modal-file-btn');
+  const fileInput = document.getElementById('modal-file-input');
+  if (fileBtn && fileInput) {
+    fileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        showModalError('Файл слишком большой (> 10 МБ)');
+        return;
+      }
+      try {
+        const text = await file.text();
+        const ta = document.getElementById('modal-textarea');
+        if (ta) ta.value = text;
+        const nameEl = document.getElementById('modal-file-name');
+        if (nameEl) nameEl.textContent = file.name;
+        showModalError('');
+      } catch (err) {
+        showModalError('Не удалось прочитать файл: ' + err.message);
+      }
+    });
+  }
 }
 
 function showModalError(msg) {
